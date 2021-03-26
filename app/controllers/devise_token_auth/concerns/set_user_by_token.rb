@@ -75,7 +75,7 @@ module DeviseTokenAuth::Concerns::SetUserByToken
     end
 
     # mitigate timing attacks by finding by uid instead of auth token
-    user = uid && rc.dta_find_by(uid: uid)
+    user = uid && rc.dta_find_by(id: uid)
     scope = rc.to_s.underscore.to_sym
 
     if user && user.valid_token?(@token.token, @token.client)

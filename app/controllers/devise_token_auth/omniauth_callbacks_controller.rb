@@ -187,9 +187,9 @@ module DeviseTokenAuth
 
     def create_auth_params
       @auth_params = {
-        uid:        @user_provider.uid,
-        auth_token: @token.token,
-        client_id:  @token.client,
+        uid:        @resource.id,
+        "access-token" => @token.token,
+        client:  @token.client,
         expiry:     @token.expiry,
         config:     @config
       }
@@ -213,7 +213,6 @@ module DeviseTokenAuth
     end
 
     def render_data_or_redirect(message, data, user_data = {})
-
       # We handle inAppBrowser and newWindow the same, but it is nice
       # to support values in case people need custom implementations for each case
       # (For example, nbrustein does not allow new users to be created if logging in with

@@ -22,9 +22,9 @@ module DeviseTokenAuth::Concerns::ResourceFinder
   def find_resource(field, value)
     @resource = if database_adapter&.include?('mysql')
                   # fix for mysql default case insensitivity
-                  resource_class.where("BINARY #{field} = ? AND provider= ?", value, provider).first
+                  resource_class.where("BINARY #{field} = ?", value).first
                 else
-                  resource_class.dta_find_by(field => value, 'provider' => provider)
+                  resource_class.dta_find_by(field => value)
                 end
   end
 
@@ -49,9 +49,5 @@ module DeviseTokenAuth::Concerns::ResourceFinder
               end
 
     mapping.to
-  end
-
-  def provider
-    'email'
   end
 end

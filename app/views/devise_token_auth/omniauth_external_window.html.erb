@@ -16,7 +16,6 @@
       */
 
       var data = JSON.parse(decodeURIComponent('<%= ERB::Util.url_encode( @data.to_json ) %>'));
-
       window.addEventListener("message", function(ev) {
         if (ev.data === "requestCredentials") {
           ev.source.postMessage(data, '*');
