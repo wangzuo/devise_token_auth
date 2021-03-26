@@ -45,7 +45,7 @@ module DeviseTokenAuth
     # find the mapping in `omniauth.params`.
     #
     # One example use-case here is for IDP-initiated SAML login.  In that
-    # case, there will have been no initial request in which to save 
+    # case, there will have been no initial request in which to save
     # the devise mapping.  If you are in a situation like that, and
     # your app allows for you to determine somehow what the devise
     # mapping should be (because, for example, it is always the same),
@@ -66,7 +66,7 @@ module DeviseTokenAuth
 
       sign_in(:user, @resource, store: false, bypass: false)
 
-      @resource.save!
+      # @resource.save!
 
       yield @resource if block_given?
 
@@ -78,10 +78,9 @@ module DeviseTokenAuth
       render_data_or_redirect('authFailure', error: @error)
     end
 
-    def validate_auth_origin_url_param 
+    def validate_auth_origin_url_param
       return render_error_not_allowed_auth_origin_url if auth_origin_url && blacklisted_redirect_url?(auth_origin_url)
     end
-  
 
     protected
 
@@ -188,9 +187,9 @@ module DeviseTokenAuth
 
     def create_auth_params
       @auth_params = {
+        uid:        @user_provider.uid,
         auth_token: @token.token,
         client_id:  @token.client,
-        uid:        @resource.uid,
         expiry:     @token.expiry,
         config:     @config
       }
@@ -261,18 +260,33 @@ module DeviseTokenAuth
     end
 
     def get_resource_from_auth_hash
-      # find or create user by provider and provider uid
-      @resource = resource_class.where(
-        uid: auth_hash['uid'],
-        provider: auth_hash['provider']
+      @user_provider = UserProvider.where(
+        provider: auth_hash['provider'],
+        uid: auth_hash['uid']
       ).first_or_initialize
 
-      if @resource.new_record?
-        handle_new_resource
+      if @user_provider.new_record?
+        @resource = resource_class.new
+        set_random_password
+        @resource.save!
+
+        @user_provider.user_id = @resource.id
+        @user_provider.token = auth_hash['credentials']['token']
+        @user_provider.info = auth_hash['info']
+        @user_provider.save!
+      else
+        @user_provider.token = auth_hash['credentials']['token']
+        @user_provider.info = auth_hash['info']
+        @resource = @user_provider.user
       end
 
+
+      # if @resource.new_record?
+      #   handle_new_resource
+      # end
+
       # sync user info with provider, update/generate auth token
-      assign_provider_attrs(@resource, auth_hash)
+      # assign_provider_attrs(@resource, auth_hash)
 
       # assign any additional (whitelisted) attributes
       if assign_whitelisted_params?
@@ -283,5 +297,4 @@ module DeviseTokenAuth
       @resource
     end
   end
-
 end

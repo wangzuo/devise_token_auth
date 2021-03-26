@@ -49,7 +49,7 @@ module DeviseTokenAuth::Concerns::User
     end
 
     def password_required?
-      return false unless provider == 'email'
+      # return false unless provider == 'email'
       super
     end
 
