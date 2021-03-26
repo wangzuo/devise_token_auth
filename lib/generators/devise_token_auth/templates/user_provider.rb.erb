@@ -1,0 +1,5 @@
+# frozen_string_literal: true
+
+class <%= user_provider_class %> < ActiveRecord::Base
+  include DeviseTokenAuth::Concerns::UserProvider
+end

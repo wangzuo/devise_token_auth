@@ -41,6 +41,23 @@ module DeviseTokenAuth
       end
     end
 
+    def create_user_provider_model
+      fname = "app/models/#{user_provider_class.underscore}.rb"
+      if File.exist?(File.join(destination_root, fname))
+        inclusion = 'include DeviseTokenAuth::Concerns::UserProvider'
+        unless parse_file_for_line(fname, inclusion)
+
+          active_record_needle = (Rails::VERSION::MAJOR >= 5) ? 'ApplicationRecord' : 'ActiveRecord::Base'
+          inject_into_file fname, after: "class #{user_class} < #{active_record_needle}\n" do <<-'RUBY'
+            include DeviseTokenAuth::Concerns::UserProvider
+            RUBY
+          end
+        end
+      else
+        template('user_provider.rb.erb', fname)
+      end
+    end
+
     private
 
     def self.next_migration_number(path)
