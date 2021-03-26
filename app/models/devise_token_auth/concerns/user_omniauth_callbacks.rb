@@ -4,7 +4,7 @@ module DeviseTokenAuth::Concerns::UserOmniauthCallbacks
   extend ActiveSupport::Concern
 
   included do
-    validates :email, presence: true, if: Proc.new { |user| user.email.present? }
+    # validates :email, presence: true,if: :email_provider?
     # validates :email, :devise_token_auth_email => true, allow_nil: true, allow_blank: true, if: :email_provider?
     # validates_presence_of :uid, unless: :email_provider?
 
