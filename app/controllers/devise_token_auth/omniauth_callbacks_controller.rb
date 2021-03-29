@@ -66,7 +66,7 @@ module DeviseTokenAuth
 
       sign_in(:user, @resource, store: false, bypass: false)
 
-      # @resource.save!
+      @resource.save!
 
       yield @resource if block_given?
 
@@ -267,6 +267,7 @@ module DeviseTokenAuth
       if @user_provider.new_record?
         @resource = resource_class.new
         set_random_password
+        @oauth_registration = true
         @resource.save!
 
         @user_provider.user_id = @resource.id
@@ -276,13 +277,9 @@ module DeviseTokenAuth
       else
         @user_provider.token = auth_hash['credentials']['token']
         @user_provider.info = auth_hash['info']
+        @user_provider.save!
         @resource = @user_provider.user
       end
-
-
-      # if @resource.new_record?
-      #   handle_new_resource
-      # end
 
       # sync user info with provider, update/generate auth token
       # assign_provider_attrs(@resource, auth_hash)
