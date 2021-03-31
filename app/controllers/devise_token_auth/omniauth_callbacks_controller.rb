@@ -6,7 +6,7 @@ module DeviseTokenAuth
 
     before_action :validate_auth_origin_url_param
 
-    skip_before_action :set_user_by_token, raise: false
+    # skip_before_action :set_user_by_token, raise: false
     skip_after_action :update_auth_header
 
     # intermediary route for successful omniauth authentication. omniauth does
@@ -265,10 +265,13 @@ module DeviseTokenAuth
       ).first_or_initialize
 
       if @user_provider.new_record?
-        @resource = resource_class.new
-        set_random_password
-        @oauth_registration = true
-        @resource.save!
+
+        if @resource.nil?
+          @resource = resource_class.new
+          set_random_password
+          @oauth_registration = true
+          @resource.save!
+        end
 
         @user_provider.user_id = @resource.id
         @user_provider.token = auth_hash['credentials']['token']
