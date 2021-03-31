@@ -259,13 +259,14 @@ module DeviseTokenAuth
     end
 
     def get_resource_from_auth_hash
+      current_user
+
       @user_provider = UserProvider.where(
         provider: auth_hash['provider'],
         uid: auth_hash['uid']
       ).first_or_initialize
 
       if @user_provider.new_record?
-
         if @resource.nil?
           @resource = resource_class.new
           set_random_password
